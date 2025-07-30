@@ -1,0 +1,6 @@
+# Test URLs for MCP classification
+https://modelcontextprotocol.io/
+https://github.com/modelcontextprotocol/servers
+https://docs.anthropic.com/en/docs/build-with-claude/computer-use
+https://example.com
+https://github.com/pydantic/pydantic
