@@ -42,6 +42,8 @@ DEFAULT_TIMEOUT = int(os.getenv("REQUEST_TIMEOUT", "5"))
               help=f'Request timeout in seconds (default: {DEFAULT_TIMEOUT})')
 @click.option('--debug', is_flag=True, help='Enable debug logging')
 @click.option('--no-llm', is_flag=True, help='Disable LLM classification')
+@click.option('--model', help='Ollama model to use (default: llama3.3)')
+@click.option('--prompt', help='Custom prompt template file')
 @click.option('--proxy', help='HTTP proxy URL')
 @click.version_option(version='1.0.0', prog_name='mcp-classify')
 def main(url: Optional[str], 
@@ -53,6 +55,8 @@ def main(url: Optional[str],
          timeout: int,
          debug: bool,
          no_llm: bool,
+         model: Optional[str],
+         prompt: Optional[str],
          proxy: Optional[str]):
     """
     MCP URL Classifier - Classify URLs into MCP-related categories.
@@ -114,6 +118,8 @@ def main(url: Optional[str],
                 concurrency=concurrency,
                 timeout=timeout,
                 enable_llm=not no_llm,
+                model=model,
+                prompt=prompt,
                 proxy=proxy,
                 debug=debug
             )
@@ -140,6 +146,8 @@ async def classify_urls(urls: List[str],
                        concurrency: int = 32,
                        timeout: int = 5,
                        enable_llm: bool = True,
+                       model: Optional[str] = None,
+                       prompt: Optional[str] = None,
                        proxy: Optional[str] = None,
                        debug: bool = False) -> List[dict]:
     """
@@ -166,7 +174,9 @@ async def classify_urls(urls: List[str],
     detector = MCPDetector(
         timeout=timeout,
         proxy=proxy,
-        enable_llm=enable_llm
+        enable_llm=enable_llm,
+        model=model,
+        prompt_template_file=prompt
     )
     
     # Check LLM availability if enabled

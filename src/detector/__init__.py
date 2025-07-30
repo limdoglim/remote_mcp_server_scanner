@@ -26,6 +26,8 @@ class MCPDetector:
                  timeout: int = 5,
                  proxy: Optional[str] = None,
                  ollama_base_url: Optional[str] = None,
+                 model: Optional[str] = None,
+                 prompt_template_file: Optional[str] = None,
                  enable_llm: bool = True):
         """
         Initialize MCP detector.
@@ -49,6 +51,8 @@ class MCPDetector:
         if enable_llm:
             self.llm_classifier = MCPLLMClassifier(
                 base_url=ollama_base_url,
+                model=model,
+                prompt_template_file=prompt_template_file,
                 timeout=min(timeout, 10)
             )
         else:

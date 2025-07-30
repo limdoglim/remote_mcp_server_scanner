@@ -20,14 +20,21 @@ class MCPLLMClassifier:
     
     def __init__(self, 
                  base_url: Optional[str] = None,
-                 model: str = "llama2",
-                 timeout: int = 10):
+                 model: Optional[str] = None,
+                 timeout: int = 10,
+                 prompt_template_file: Optional[str] = None):
         self.base_url = base_url or os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
-        self.model = model
+        self.model = model or os.getenv("OLLAMA_MODEL", "llama3.3")
         self.timeout = timeout
         
-        # Classification prompt template
-        self.classification_prompt = """
+        # Load custom prompt template if provided
+        self.classification_prompt = self._load_prompt_template(
+            prompt_template_file or os.getenv("PROMPT_TEMPLATE_FILE")
+        )
+    
+    def _load_prompt_template(self, template_file: Optional[str]) -> str:
+        """Load prompt template from file or use default."""
+        default_prompt = """
 You are an expert at analyzing web content to classify URLs related to Model Context Protocol (MCP).
 
 Analyze the following content and classify it into one of these categories:
@@ -45,6 +52,29 @@ Content snippet: {content_snippet}
 Respond with ONLY a JSON object in this exact format:
 {{"category": "mcp_server|mcp_intro|mcp_registry|unknown", "confidence": 0.0-1.0, "reasoning": "brief explanation"}}
 """
+        
+        if template_file:
+            try:
+                import os
+                # Support both absolute and relative paths
+                if not os.path.isabs(template_file):
+                    # Relative to project root
+                    project_root = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
+                    template_file = os.path.join(project_root, template_file)
+                
+                with open(template_file, 'r', encoding='utf-8') as f:
+                    custom_prompt = f.read().strip()
+                    if custom_prompt:
+                        logger.info(f"Loaded custom prompt template from {template_file}")
+                        return custom_prompt
+                    else:
+                        logger.warning(f"Custom prompt template file {template_file} is empty, using default")
+            except FileNotFoundError:
+                logger.warning(f"Custom prompt template file {template_file} not found, using default")
+            except Exception as e:
+                logger.warning(f"Error loading custom prompt template: {e}, using default")
+        
+        return default_prompt
     
     async def classify_url(self, 
                           url: str, 

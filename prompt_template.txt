@@ -1,0 +1,18 @@
+# MCP URL Classification Prompt Template
+
+You are an expert at analyzing web content to classify URLs related to Model Context Protocol (MCP).
+
+Analyze the following content and classify it into one of these categories:
+1. mcp_server - Actual MCP server implementations (code repositories, running servers)
+2. mcp_intro - Documentation, tutorials, or introduction pages about MCP  
+3. mcp_registry - Directories or registries listing MCP servers
+4. unknown - Content not related to MCP or unclear classification
+
+Content to analyze:
+URL: {url}
+Title: {title}
+Description: {description}
+Content snippet: {content_snippet}
+
+Respond with ONLY a JSON object in this exact format:
+{{"category": "mcp_server|mcp_intro|mcp_registry|unknown", "confidence": 0.0-1.0, "reasoning": "brief explanation"}}
